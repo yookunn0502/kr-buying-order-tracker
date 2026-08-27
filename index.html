@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>韓國代購查詢系統</title>
+
+  <title>yoo market｜韓國代購查詢</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-  <style>
-    <body class="bg-[#f8f5f1] text-stone-700">
+<body class="bg-stone-100 text-stone-700 min-h-screen">
 
   <div class="max-w-3xl mx-auto px-5 py-10">
 
-    <!-- Logo -->
+    <!-- Header -->
     <div class="text-center mb-12">
 
       <div class="text-sm tracking-[6px] text-stone-400 mb-3">
@@ -30,7 +32,7 @@
     </div>
 
     <!-- Search -->
-    <div class="bg-white rounded-[32px] p-6 shadow-sm border border-stone-100">
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200">
 
       <div class="flex flex-col md:flex-row gap-4">
 
@@ -38,7 +40,7 @@
           id="searchInput"
           type="text"
           placeholder="請輸入購買人名稱"
-          class="flex-1 bg-stone-50 border border-stone-100 rounded-2xl px-5 py-4 outline-none focus:border-stone-300 transition"
+          class="flex-1 bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 outline-none"
         >
 
         <button
@@ -74,309 +76,104 @@
 
   </div>
 
-<script>
-
-const API_URL = "https://opensheet.elk.sh/1sb_Q8fGORDpMM82g2GJGmMBDKyhIGJb0AJmpOo21TtM/工作表1";
-
-let orders = [];
-
-async function loadOrders(){
-
-  try{
-
-    const response = await fetch(API_URL);
-
-    const data = await response.json();
-
-    orders = data;
-
-  }catch(error){
-
-    console.log(error);
-
-  }
-
-}
-
-async function searchOrder(){
-
-  if(orders.length === 0){
-
-    await loadOrders();
-
-  }
-
-  const input = document
-    .getElementById("searchInput")
-    .value
-    .trim();
-
-  const result = document.getElementById("result");
-
-  const customerOrders = orders.filter(
-    item => item.Name === input
-  );
-
-  if(customerOrders.length === 0){
-
-    result.innerHTML = `
-      <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-100 text-center">
-        查無訂單資料
-      </div>
-    `;
-
-    return;
-
-  }
-
-  let html = `
-    <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-100">
-
-      <h2 class="text-2xl mb-8 font-light">
-        ${input} 的訂單
-      </h2>
-  `;
-
-  customerOrders.forEach(item=>{
-
-    let color = "bg-[#efe7dc] text-[#8b6b45]";
-
-    if(item.Status === "已匯款"){
-      color = "bg-[#e8efe7] text-[#5f7359]";
-    }
-
-    if(item.Status === "待出貨"){
-      color = "bg-[#e7ebf3] text-[#5f6f8a]";
-    }
-
-    html += `
-      <div class="border border-stone-100 rounded-2xl p-5 mb-4 flex justify-between items-center bg-stone-50">
-
-        <div>
-          ${item.Product}
-        </div>
-
-        <div class="${color} px-4 py-2 rounded-full text-sm">
-          ${item.Status}
-        </div>
-
-      </div>
-    `;
-  });
-
-  html += `</div>`;
-
-  result.innerHTML = html;
-
-}
-
-</script>
-
-</body>
-
-
-  <div class="max-w-6xl mx-auto px-6 py-12">
-
-    <!-- Header -->
-    <div class="text-center mb-14">
-      <h1 class="text-4xl md:text-5xl font-light tracking-wide text-stone-700 mb-4">
-        韓國代購查詢
-      </h1>
-
-      <p class="text-stone-500 text-lg">
-        輸入購買人名稱即可查詢訂單與貨態
-      </p>
-    </div>
-
-    <!-- Search -->
-    <div class="card soft-shadow rounded-3xl p-6 md:p-8 mb-10">
-      <div class="flex flex-col md:flex-row gap-4">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="請輸入購買人名稱"
-          class="flex-1 px-5 py-4 rounded-2xl border border-stone-200 bg-white outline-none focus:border-stone-400 transition"
-        />
-
-        <button
-          onclick="searchCustomer()"
-          class="px-8 py-4 rounded-2xl bg-stone-700 text-white hover:bg-stone-800 transition"
-        >
-          查詢
-        </button>
-      </div>
-    </div>
-
-    <!-- Result -->
-    <div id="resultArea" class="mb-12"></div>
-
-    <!-- Rules -->
-    <div class="card soft-shadow rounded-3xl p-8">
-      <h2 class="text-2xl text-stone-700 mb-6 font-light">
-        代購注意事項
-      </h2>
-
-      <div class="space-y-4 text-stone-600 leading-8">
-
-        <div>
-          ・商品皆為韓國官方購入，若遇缺貨將另行通知。
-        </div>
-
-        <div>
-          ・代購商品需先付款才會進行下單。
-        </div>
-
-        <div>
-          ・韓國出貨與國際物流時間約 7～21 天不等。
-        </div>
-
-        <div>
-          ・海外商品可能因運送產生外盒輕微壓損，完美主義者請斟酌下單。
-        </div>
-
-        <div>
-          ・已下單商品除重大瑕疵外不接受取消訂單。
-        </div>
-
-        <div>
-          ・若有任何問題可透過 IG / LINE 聯繫。
-        </div>
-
-      </div>
-    </div>
   <script>
 
-    /*
-      請將下面網址替換成你的 Google Sheet JSON API
-    */
-
-    const API_URL = "https://opensheet.elk.sh/1sb_Q8fGORDpMM82g2GJGmMBDKyhIGJb0AJmpOo21TtM
-9月代購";
+    const API_URL = "https://opensheet.elk.sh/1sb_Q8fGORDpMM82g2GJGmMBDKyhIGJb0AJmpOo21TtM/工作表1";
 
     let orders = [];
 
     async function loadOrders() {
+
       try {
 
         const response = await fetch(API_URL);
+
         const data = await response.json();
 
-        orders = data.map(item => ({
-          name: item.Name,
-          product: item.Product,
-          status: item.Status
-        }));
+        orders = data;
 
       } catch (error) {
-        console.error("讀取 Google Sheet 失敗", error);
 
-        orders = [
-          {
-            name: "小安",
-            product: "Matin Kim 後背包",
-            status: "已匯款"
-          },
-          {
-            name: "Luna",
-            product: "Stand Oil 包包",
-            status: "待出貨"
-          }
-        ];
+        console.log(error);
+
       }
+
     }
 
-    function getStatusClass(status) {
-      if (status === "已匯款") return "status-paid";
-      if (status === "待出貨") return "status-shipping";
-      if (status === "已完成") return "status-complete";
-      return "status-purchased";
-    }
-
-    async function searchCustomer() {
-
-      const input = document.getElementById("searchInput").value.trim();
-      const resultArea = document.getElementById("resultArea");
-
-      resultArea.innerHTML = "";
-
-      if (!input) {
-        resultArea.innerHTML = `
-          <div class="text-center text-stone-500">
-            請輸入名稱
-          </div>
-        `;
-        return;
-      }
+    async function searchOrder() {
 
       if (orders.length === 0) {
+
         await loadOrders();
+
       }
 
+      const input = document
+        .getElementById("searchInput")
+        .value
+        .trim();
+
+      const result = document.getElementById("result");
+
       const customerOrders = orders.filter(
-        item => item.name.toLowerCase() === input.toLowerCase()
+        item => item.Name === input
       );
 
       if (customerOrders.length === 0) {
 
-        resultArea.innerHTML = `
-          <div class="card soft-shadow rounded-3xl p-10 text-center">
-            <p class="text-xl text-stone-500">
-              查無訂單資料
-            </p>
+        result.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-200 text-center">
+            查無訂單資料
           </div>
         `;
 
         return;
+
       }
 
       let html = `
-        <div class="card soft-shadow rounded-3xl p-8">
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-200">
 
-          <div class="mb-8">
-            <h2 class="text-2xl font-light text-stone-700 mb-2">
-              ${input} 的訂單
-            </h2>
-
-            <p class="text-stone-500">
-              共 ${customerOrders.length} 項商品
-            </p>
-          </div>
-
-          <div class="space-y-4">
+          <h2 class="text-2xl mb-8 font-light">
+            ${input} 的訂單
+          </h2>
       `;
 
       customerOrders.forEach(item => {
 
+        let color = "bg-amber-100 text-amber-700";
+
+        if (item.Status === "已匯款") {
+          color = "bg-green-100 text-green-700";
+        }
+
+        if (item.Status === "待出貨") {
+          color = "bg-blue-100 text-blue-700";
+        }
+
         html += `
-          <div class="border border-stone-100 rounded-2xl p-5 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="border border-stone-100 rounded-2xl p-5 mb-4 flex justify-between items-center bg-stone-50">
 
             <div>
-              <p class="text-lg text-stone-700">
-                ${item.product}
-              </p>
+              ${item.Product}
             </div>
 
-            <div>
-              <span class="${getStatusClass(item.status)} px-4 py-2 rounded-full text-sm">
-                ${item.status}
-              </span>
+            <div class="${color} px-4 py-2 rounded-full text-sm">
+              ${item.Status}
             </div>
 
           </div>
         `;
       });
 
-      html += `
-          </div>
-        </div>
-      `;
+      html += `</div>`;
 
-      resultArea.innerHTML = html;
+      result.innerHTML = html;
+
     }
-
-    loadOrders();
 
   </script>
 
 </body>
+
 </html>
