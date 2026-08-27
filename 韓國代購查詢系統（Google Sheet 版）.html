@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>韓國代購查詢系統</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f7f7f5;
+      color: #4b4b4b;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #eceae6;
+      backdrop-filter: blur(12px);
+    }
+
+    .soft-shadow {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+    }
+
+    .status-paid {
+      background: #e7f1e8;
+      color: #55735f;
+    }
+
+    .status-purchased {
+      background: #f3ede2;
+      color: #92754a;
+    }
+
+    .status-shipping {
+      background: #e8edf6;
+      color: #536a8a;
+    }
+
+    .status-complete {
+      background: #efe8f5;
+      color: #715a8d;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+  <div class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <div class="text-center mb-14">
+      <h1 class="text-4xl md:text-5xl font-light tracking-wide text-stone-700 mb-4">
+        韓國代購查詢
+      </h1>
+
+      <p class="text-stone-500 text-lg">
+        輸入購買人名稱即可查詢訂單與貨態
+      </p>
+    </div>
+
+    <!-- Search -->
+    <div class="card soft-shadow rounded-3xl p-6 md:p-8 mb-10">
+      <div class="flex flex-col md:flex-row gap-4">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="請輸入購買人名稱"
+          class="flex-1 px-5 py-4 rounded-2xl border border-stone-200 bg-white outline-none focus:border-stone-400 transition"
+        />
+
+        <button
+          onclick="searchCustomer()"
+          class="px-8 py-4 rounded-2xl bg-stone-700 text-white hover:bg-stone-800 transition"
+        >
+          查詢
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="resultArea" class="mb-12"></div>
+
+    <!-- Rules -->
+    <div class="card soft-shadow rounded-3xl p-8">
+      <h2 class="text-2xl text-stone-700 mb-6 font-light">
+        代購注意事項
+      </h2>
+
+      <div class="space-y-4 text-stone-600 leading-8">
+
+        <div>
+          ・商品皆為韓國官方購入，若遇缺貨將另行通知。
+        </div>
+
+        <div>
+          ・代購商品需先付款才會進行下單。
+        </div>
+
+        <div>
+          ・韓國出貨與國際物流時間約 7～21 天不等。
+        </div>
+
+        <div>
+          ・海外商品可能因運送產生外盒輕微壓損，完美主義者請斟酌下單。
+        </div>
+
+        <div>
+          ・已下單商品除重大瑕疵外不接受取消訂單。
+        </div>
+
+        <div>
+          ・若有任何問題可透過 IG / LINE 聯繫。
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Admin Guide -->
+    <div class="mt-10 card soft-shadow rounded-3xl p-8">
+      <h2 class="text-2xl text-stone-700 mb-6 font-light">
+        Google Sheet 後台設定方式
+      </h2>
+
+      <div class="space-y-5 text-stone-600 leading-8">
+
+        <div>
+          1. 建立 Google Sheet
+        </div>
+
+        <div>
+          2. 欄位名稱請設定：
+          <br>
+          Name ｜ Product ｜ Status
+        </div>
+
+        <div>
+          3. 範例：
+          <br><br>
+
+          小安 ｜ Matin Kim 包包 ｜ 已匯款
+          <br>
+          小安 ｜ Mardi T-shirt ｜ 待出貨
+          <br>
+          Yuki ｜ Gentle Monster 墨鏡 ｜ 已購買
+        </div>
+
+        <div>
+          4. 發布成網頁：
+          <br>
+          Google Sheet → 檔案 → 共用 → 發布到網路
+        </div>
+
+        <div>
+          5. 使用 sheet.best / opensheet 等服務轉成 JSON API
+        </div>
+
+        <div>
+          6. 將下方 API_URL 改成你的網址即可
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+
+    /*
+      請將下面網址替換成你的 Google Sheet JSON API
+    */
+
+    const API_URL = "https://opensheet.elk.sh/YOUR_SHEET_ID/工作表1";
+
+    let orders = [];
+
+    async function loadOrders() {
+      try {
+
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        orders = data.map(item => ({
+          name: item.Name,
+          product: item.Product,
+          status: item.Status
+        }));
+
+      } catch (error) {
+        console.error("讀取 Google Sheet 失敗", error);
+
+        orders = [
+          {
+            name: "小安",
+            product: "Matin Kim 後背包",
+            status: "已匯款"
+          },
+          {
+            name: "Luna",
+            product: "Stand Oil 包包",
+            status: "待出貨"
+          }
+        ];
+      }
+    }
+
+    function getStatusClass(status) {
+      if (status === "已匯款") return "status-paid";
+      if (status === "待出貨") return "status-shipping";
+      if (status === "已完成") return "status-complete";
+      return "status-purchased";
+    }
+
+    async function searchCustomer() {
+
+      const input = document.getElementById("searchInput").value.trim();
+      const resultArea = document.getElementById("resultArea");
+
+      resultArea.innerHTML = "";
+
+      if (!input) {
+        resultArea.innerHTML = `
+          <div class="text-center text-stone-500">
+            請輸入名稱
+          </div>
+        `;
+        return;
+      }
+
+      if (orders.length === 0) {
+        await loadOrders();
+      }
+
+      const customerOrders = orders.filter(
+        item => item.name.toLowerCase() === input.toLowerCase()
+      );
+
+      if (customerOrders.length === 0) {
+
+        resultArea.innerHTML = `
+          <div class="card soft-shadow rounded-3xl p-10 text-center">
+            <p class="text-xl text-stone-500">
+              查無訂單資料
+            </p>
+          </div>
+        `;
+
+        return;
+      }
+
+      let html = `
+        <div class="card soft-shadow rounded-3xl p-8">
+
+          <div class="mb-8">
+            <h2 class="text-2xl font-light text-stone-700 mb-2">
+              ${input} 的訂單
+            </h2>
+
+            <p class="text-stone-500">
+              共 ${customerOrders.length} 項商品
+            </p>
+          </div>
+
+          <div class="space-y-4">
+      `;
+
+      customerOrders.forEach(item => {
+
+        html += `
+          <div class="border border-stone-100 rounded-2xl p-5 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+            <div>
+              <p class="text-lg text-stone-700">
+                ${item.product}
+              </p>
+            </div>
+
+            <div>
+              <span class="${getStatusClass(item.status)} px-4 py-2 rounded-full text-sm">
+                ${item.status}
+              </span>
+            </div>
+
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      resultArea.innerHTML = html;
+    }
+
+    loadOrders();
+
+  </script>
+
+</body>
+</html>
