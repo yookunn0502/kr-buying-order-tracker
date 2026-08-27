@@ -8,45 +8,172 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background: #f7f7f5;
-      color: #4b4b4b;
+    <body class="bg-[#f8f5f1] text-stone-700">
+
+  <div class="max-w-3xl mx-auto px-5 py-10">
+
+    <!-- Logo -->
+    <div class="text-center mb-12">
+
+      <div class="text-sm tracking-[6px] text-stone-400 mb-3">
+        KOREA SELECT SHOP
+      </div>
+
+      <h1 class="text-5xl font-light mb-4">
+        yoo market
+      </h1>
+
+      <p class="text-stone-400 text-sm">
+        韓國代購訂單查詢
+      </p>
+
+    </div>
+
+    <!-- Search -->
+    <div class="bg-white rounded-[32px] p-6 shadow-sm border border-stone-100">
+
+      <div class="flex flex-col md:flex-row gap-4">
+
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="請輸入購買人名稱"
+          class="flex-1 bg-stone-50 border border-stone-100 rounded-2xl px-5 py-4 outline-none focus:border-stone-300 transition"
+        >
+
+        <button
+          onclick="searchOrder()"
+          class="bg-stone-700 hover:bg-stone-800 text-white px-8 py-4 rounded-2xl transition"
+        >
+          查詢訂單
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="mt-8"></div>
+
+    <!-- Footer -->
+    <div class="text-center mt-16 text-sm text-stone-400 leading-7">
+
+      <div>
+        韓國官方正品代購
+      </div>
+
+      <div>
+        주문 후 취소 불가
+      </div>
+
+      <div>
+        thank you for your order ♡
+      </div>
+
+    </div>
+
+  </div>
+
+<script>
+
+const API_URL = "https://opensheet.elk.sh/1sb_Q8fGORDpMM82g2GJGmMBDKyhIGJb0AJmpOo21TtM/工作表1";
+
+let orders = [];
+
+async function loadOrders(){
+
+  try{
+
+    const response = await fetch(API_URL);
+
+    const data = await response.json();
+
+    orders = data;
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
+}
+
+async function searchOrder(){
+
+  if(orders.length === 0){
+
+    await loadOrders();
+
+  }
+
+  const input = document
+    .getElementById("searchInput")
+    .value
+    .trim();
+
+  const result = document.getElementById("result");
+
+  const customerOrders = orders.filter(
+    item => item.Name === input
+  );
+
+  if(customerOrders.length === 0){
+
+    result.innerHTML = `
+      <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-100 text-center">
+        查無訂單資料
+      </div>
+    `;
+
+    return;
+
+  }
+
+  let html = `
+    <div class="bg-white rounded-3xl p-8 shadow-sm border border-stone-100">
+
+      <h2 class="text-2xl mb-8 font-light">
+        ${input} 的訂單
+      </h2>
+  `;
+
+  customerOrders.forEach(item=>{
+
+    let color = "bg-[#efe7dc] text-[#8b6b45]";
+
+    if(item.Status === "已匯款"){
+      color = "bg-[#e8efe7] text-[#5f7359]";
     }
 
-    .card {
-      background: rgba(255,255,255,0.92);
-      border: 1px solid #eceae6;
-      backdrop-filter: blur(12px);
+    if(item.Status === "待出貨"){
+      color = "bg-[#e7ebf3] text-[#5f6f8a]";
     }
 
-    .soft-shadow {
-      box-shadow: 0 12px 30px rgba(0,0,0,0.05);
-    }
+    html += `
+      <div class="border border-stone-100 rounded-2xl p-5 mb-4 flex justify-between items-center bg-stone-50">
 
-    .status-paid {
-      background: #e7f1e8;
-      color: #55735f;
-    }
+        <div>
+          ${item.Product}
+        </div>
 
-    .status-purchased {
-      background: #f3ede2;
-      color: #92754a;
-    }
+        <div class="${color} px-4 py-2 rounded-full text-sm">
+          ${item.Status}
+        </div>
 
-    .status-shipping {
-      background: #e8edf6;
-      color: #536a8a;
-    }
+      </div>
+    `;
+  });
 
-    .status-complete {
-      background: #efe8f5;
-      color: #715a8d;
-    }
-  </style>
-</head>
+  html += `</div>`;
 
-<body class="min-h-screen">
+  result.innerHTML = html;
+
+}
+
+</script>
+
+</body>
+
 
   <div class="max-w-6xl mx-auto px-6 py-12">
 
@@ -117,55 +244,6 @@
 
       </div>
     </div>
-
-    <!-- Admin Guide -->
-    <div class="mt-10 card soft-shadow rounded-3xl p-8">
-      <h2 class="text-2xl text-stone-700 mb-6 font-light">
-        Google Sheet 後台設定方式
-      </h2>
-
-      <div class="space-y-5 text-stone-600 leading-8">
-
-        <div>
-          1. 建立 Google Sheet
-        </div>
-
-        <div>
-          2. 欄位名稱請設定：
-          <br>
-          Name ｜ Product ｜ Status
-        </div>
-
-        <div>
-          3. 範例：
-          <br><br>
-
-          小安 ｜ Matin Kim 包包 ｜ 已匯款
-          <br>
-          小安 ｜ Mardi T-shirt ｜ 待出貨
-          <br>
-          Yuki ｜ Gentle Monster 墨鏡 ｜ 已購買
-        </div>
-
-        <div>
-          4. 發布成網頁：
-          <br>
-          Google Sheet → 檔案 → 共用 → 發布到網路
-        </div>
-
-        <div>
-          5. 使用 sheet.best / opensheet 等服務轉成 JSON API
-        </div>
-
-        <div>
-          6. 將下方 API_URL 改成你的網址即可
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-
   <script>
 
     /*
